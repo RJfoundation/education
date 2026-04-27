@@ -1,0 +1,25 @@
+{
+  "name": "education-platform",
+  "version": "1.0.0",
+  "description": "Professional Education Platform with Firebase Auth, Admin Approval, and Class Management",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "firebase": "^10.5.0",
+    "firebase-admin": "^12.0.0",
+    "nodemailer": "^6.9.7",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.52.0",
+    "eslint-config-next": "^14.0.0"
+  }
+}
