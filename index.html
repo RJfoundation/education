@@ -1,28 +1,196 @@
-<!-- ভিডিওর জন্য একটি রেসপন্সিভ কন্টেইনার -->
-<div class="video-container">
-  <video 
-    id="customVideoPlayer" 
-    controls 
-    preload="metadata" 
-    poster="thumbnail.jpg" 
-    playsinline 
-    aria-label="এখানে ভিডিওর একটি বিবরণ দিন"
-    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
-  >
-    <!-- আধুনিক ব্রাউজারের জন্য হালকা সাইজের WebM ফরম্যাট (ঐচ্ছিক) -->
-    <source src="rjf.webm" type="video/webm">
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Video Player</title>
+    <!-- আইকনের জন্য Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- সব ব্রাউজার সাপোর্টের জন্য আপনার মূল MP4 ফাইল -->
-    <source src="rjf.mp4" type="video/mp4">
-    
-    <!-- সাবটাইটেল বা ক্যাপশন (Accessibility এর জন্য) -->
-    <track src="captions_bn.vtt" kind="captions" srclang="bn" label="Bengali">
-    <track src="captions_en.vtt" kind="captions" srclang="en" label="English">
-    
-    <!-- ব্রাউজারে ভিডিও সাপোর্ট না করলে ফলব্যাক মেসেজ এবং ডাউনলোড লিঙ্ক -->
-    <p>
-      দুঃখিত, আপনার ব্রাউজার এই ভিডিওটি সাপোর্ট করছে না। 
-      আপনি চাইলে <a href="rjf.mp4" download>ভিডিওটি ডাউনলোড</a> করে দেখতে পারেন।
-    </p>
-  </video>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --heart-color: #ff4757;
+            --bg-card: #ffffff;
+            --text-main: #2f3542;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f2f6; display: flex; justify-content: center; padding: 20px; }
+
+        /* কন্টেইনার স্টাইল */
+        .video-card {
+            width: 100%;
+            max-width: 700px;
+            background: var(--bg-card);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* ভিডিও এরিয়া */
+        .video-wrapper { position: relative; background: #000; line-height: 0; }
+        video { width: 100%; height: auto; cursor: pointer; }
+
+        /* অ্যাকশন বার (Like, Comment, Share, Download) */
+        .action-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .action-btn i { font-size: 20px; margin-bottom: 5px; }
+        .action-btn:hover { color: var(--primary-color); transform: translateY(-2px); }
+        .action-btn.liked { color: var(--heart-color); }
+        .action-btn.liked i { font-weight: 900; }
+
+        /* কমেন্ট সেকশন */
+        .comment-section { padding: 15px; background: #fafafa; }
+        .comment-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .comment-input-group input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+        }
+        .comment-input-group button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .comments-list { max-height: 150px; overflow-y: auto; font-size: 14px; }
+        .comment-item { margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dotted #eee; }
+        .comment-item strong { color: #555; margin-right: 5px; }
+
+        /* ডাউনলোড লিঙ্ক স্টাইল */
+        .download-link { text-decoration: none; color: inherit; }
+    </style>
+</head>
+<body>
+
+<div class="video-card">
+    <!-- ভিডিও প্লেয়ার -->
+    <div class="video-wrapper">
+        <video id="customVideoPlayer" poster="thumbnail.jpg" playsinline>
+            <source src="rjf.mp4" type="video/mp4">
+            আপনার ব্রাউজার ভিডিও সাপোর্ট করছে না।
+        </video>
+    </div>
+
+    <!-- ইন্টারেক্টিভ বাটনসমূহ -->
+    <div class="action-bar">
+        <button class="action-btn" onclick="toggleLike(this)">
+            <i class="fa-regular fa-heart"></i>
+            <span id="likeCount">২৪</span>
+        </button>
+        
+        <button class="action-btn" onclick="focusComment()">
+            <i class="fa-regular fa-comment"></i>
+            <span>কমেন্ট</span>
+        </button>
+
+        <button class="action-btn" onclick="shareVideo()">
+            <i class="fa-regular fa-share-from-square"></i>
+            <span>শেয়ার</span>
+        </button>
+
+        <a href="rjf.mp4" download class="download-link">
+            <button class="action-btn">
+                <i class="fa-solid fa-download"></i>
+                <span>ডাউনলোড</span>
+            </button>
+        </a>
+    </div>
+
+    <!-- কমেন্ট বক্স -->
+    <div class="comment-section">
+        <div class="comment-input-group">
+            <input type="text" id="commentInput" placeholder="একটি মন্তব্য লিখুন...">
+            <button onclick="addComment()">পাঠান</button>
+        </div>
+        <div class="comments-list" id="commentsList">
+            <div class="comment-item"><strong>Admin:</strong> দারুন ভিডিও! আরও এমন কন্টেন্ট চাই।</div>
+        </div>
+    </div>
 </div>
+
+<script>
+    const video = document.getElementById('customVideoPlayer');
+    
+    // ভিডিওতে ক্লিক করলে প্লে/পজ হবে
+    video.addEventListener('click', () => {
+        if (video.paused) video.play();
+        else video.pause();
+    });
+
+    // লাইক ফাংশনালিটি
+    function toggleLike(btn) {
+        btn.classList.toggle('liked');
+        const countSpan = document.getElementById('likeCount');
+        let count = parseInt(countSpan.innerText);
+        
+        if (btn.classList.contains('liked')) {
+            countSpan.innerText = count + 1;
+            btn.querySelector('i').classList.replace('fa-regular', 'fa-solid');
+        } else {
+            countSpan.innerText = count - 1;
+            btn.querySelector('i').classList.replace('fa-solid', 'fa-regular');
+        }
+    }
+
+    // কমেন্ট ফোকাস
+    function focusComment() {
+        document.getElementById('commentInput').focus();
+    }
+
+    // নতুন কমেন্ট যোগ করা
+    function addComment() {
+        const input = document.getElementById('commentInput');
+        const list = document.getElementById('commentsList');
+        
+        if (input.value.trim() !== "") {
+            const div = document.createElement('div');
+            div.className = 'comment-item';
+            div.innerHTML = `<strong>আপনি:</strong> ${input.value}`;
+            list.prepend(div);
+            input.value = "";
+        }
+    }
+
+    // শেয়ার ফাংশন (Web Share API)
+    async function shareVideo() {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'অসাধারণ ভিডিও',
+                    text: 'এই ভিডিওটি আপনার ভালো লাগতে পারে!',
+                    url: window.location.href
+                });
+            } catch (err) {
+                console.log('Error sharing:', err);
+            }
+        } else {
+            alert('আপনার ব্রাউজার সরাসরি শেয়ার সাপোর্ট করছে না। লিঙ্কটি কপি করুন।');
+        }
+    }
+</script>
+
+</body>
+</html>
