@@ -1,4 +1,28 @@
-<video width="640" height="360" controls>
-  <source src="rjf.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<!-- ভিডিওর জন্য একটি রেসপন্সিভ কন্টেইনার -->
+<div class="video-container">
+  <video 
+    id="customVideoPlayer" 
+    controls 
+    preload="metadata" 
+    poster="thumbnail.jpg" 
+    playsinline 
+    aria-label="এখানে ভিডিওর একটি বিবরণ দিন"
+    style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+  >
+    <!-- আধুনিক ব্রাউজারের জন্য হালকা সাইজের WebM ফরম্যাট (ঐচ্ছিক) -->
+    <source src="rjf.webm" type="video/webm">
+    
+    <!-- সব ব্রাউজার সাপোর্টের জন্য আপনার মূল MP4 ফাইল -->
+    <source src="rjf.mp4" type="video/mp4">
+    
+    <!-- সাবটাইটেল বা ক্যাপশন (Accessibility এর জন্য) -->
+    <track src="captions_bn.vtt" kind="captions" srclang="bn" label="Bengali">
+    <track src="captions_en.vtt" kind="captions" srclang="en" label="English">
+    
+    <!-- ব্রাউজারে ভিডিও সাপোর্ট না করলে ফলব্যাক মেসেজ এবং ডাউনলোড লিঙ্ক -->
+    <p>
+      দুঃখিত, আপনার ব্রাউজার এই ভিডিওটি সাপোর্ট করছে না। 
+      আপনি চাইলে <a href="rjf.mp4" download>ভিডিওটি ডাউনলোড</a> করে দেখতে পারেন।
+    </p>
+  </video>
+</div>
