@@ -81,9 +81,105 @@
 
         /* ডাউনলোড লিঙ্ক স্টাইল */
         .download-link { text-decoration: none; color: inherit; }
+
+
+
+
+
+
+
+
+
+
+        /* মডার্ন বাটন স্টাইলিং */
+.pro-pay-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    font-family: system-ui, -apple-system, sans-serif;
+    outline: none;
+}
+
+/* হোভার ইফেক্ট */
+.pro-pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+}
+
+/* ক্লিক করার সময় ইফেক্ট */
+.pro-pay-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(79, 70, 229, 0.3);
+}
+
+/* লোডিং বা ডিজেবল স্টেটের স্টাইল */
+.pro-pay-btn:disabled, 
+.pro-pay-btn.loading {
+    background: #818cf8;
+    cursor: not-allowed;
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* স্পিনার ডিফল্টভাবে লুকানো থাকবে */
+.pro-pay-btn .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    animation: spin 2s linear infinite;
+}
+
+/* যখন 'loading' ক্লাস অ্যাড হবে, স্পিনার দেখাবে */
+.pro-pay-btn.loading .spinner {
+    display: inline-block;
+}
+
+/* স্পিনার অ্যানিমেশন লজিক */
+.spinner .path {
+    stroke: #ffffff;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes dash {
+    0% { stroke-dasharray: 1, 150; stroke-dashoffset: 0; }
+    50% { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+    100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+}
+
     </style>
 </head>
 <body>
+
+<button id="payButton" class="pro-pay-btn">
+    <span id="btnText">Proceed to Pay</span>
+    <!-- SVG Loading Spinner -->
+    <svg class="spinner" viewBox="0 0 50 50">
+        <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+    </svg>
+</button>
+
+
+
+
+    
+    
 
 <div class="video-card">
     <!-- ভিডিও প্লেয়ার -->
@@ -190,6 +286,59 @@
             alert('আপনার ব্রাউজার সরাসরি শেয়ার সাপোর্ট করছে না। লিঙ্কটি কপি করুন।');
         }
     }
+
+
+
+
+
+
+
+
+    document.getElementById('payButton').addEventListener('click', async () => {
+    const button = document.getElementById('payButton');
+    const btnText = document.getElementById('btnText');
+    
+    // UI-তে লোডিং স্টেট চালু করা
+    button.classList.add('loading');
+    button.disabled = true;
+    btnText.innerText = "Processing...";
+
+    try {
+        const response = await fetch('/initiate-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: "12345", 
+                amount: "500" 
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.payment_url) {
+            // পেমেন্ট গেটওয়ে পেজে রিডাইরেক্ট
+            window.location.href = data.payment_url; 
+        } else {
+            alert("Payment initiation failed! Please try again.");
+            resetButtonState(button, btnText); // ফেইল করলে বাটন আগের অবস্থায় যাবে
+        }
+    } catch (error) {
+        console.error("Payment Error:", error);
+        alert("Network error occurred.");
+        resetButtonState(button, btnText);
+    } 
+    // finally ব্লক সরিয়ে দিয়েছি, কারণ রিডাইরেক্ট হলে বাটন রিসেট করার দরকার নেই।
+});
+
+// বাটন রিসেট করার ফাংশন
+function resetButtonState(button, btnText) {
+    button.classList.remove('loading');
+    button.disabled = false;
+    btnText.innerText = "Proceed to Pay";
+}
+
 </script>
 
 </body>
